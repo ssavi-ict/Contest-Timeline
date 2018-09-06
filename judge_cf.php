@@ -123,10 +123,11 @@
 				
 				//Contest Title Crawl
 				$contest_title_extra = explode('</td>', $contest_details_list[1]);
+				$contest_title_extra = explode('<br/>', $contest_title_extra[0]);
 				$contest_title = $contest_title_extra[0];
 				
 				// Timezone Set
-				date_default_timezone_set("Asia/Dhaka");
+				date_default_timezone_set('Asia/Dhaka');
 				
 				//Contest Date and Time Information
 				$contest_date_and_time = $contest_details_list[2];
@@ -158,7 +159,12 @@
 				
 				
 				//Current Date and Time
-				$current_dt = new DateTime("-1 hour");
+				
+				//For LocalHost
+				//$current_dt = new DateTime("-1 hour");
+				
+				//For Global
+				$current_dt = new DateTime();
 				$current_dt = $current_dt->format('m-d-Y H:i');
 				$current_dt_parse = date_parse($current_dt);
 				$current_hour = str_pad($current_dt_parse['hour'], 2, "0", STR_PAD_LEFT);
@@ -172,12 +178,16 @@
 				
 				
 				if(intval($year)>intval($current_year)) $contest_status = "Upcoming";
-				else if(intval($month)>intval($current_month)) $contest_status = "Upcoming";
-				else if(intval($day)>intval($current_day)) $contest_status = "Upcoming";
-				else if(intval($hour)>intval($current_hour)) $contest_status = "Upcoming";
-				else if(intval($minute)>intval($current_minute)) $contest_status = "Upcoming";
-				else if(intval($second)>intval($current_second)) $contest_status = "Upcoming";
-				else $contest_status = "Active";
+				else if(intval($month)>intval($current_day)) $contest_status = "Upcoming";
+				else if(intval($day)>intval($current_month)) $contest_status = "Upcoming";
+				else{
+					if(intval($current_hour)>intval($hour)) $contest_status = "Active"; 
+					else if(intval($current_hour)<intval($hour)) $contest_status = "Upcoming";
+					else{
+						if(intval($current_minute)>=intval($minute)) $contest_status = "Active";
+						else $contest_status = "Upcoming";
+					}
+				}
 						
 				
 				//Contest Duration
@@ -193,7 +203,10 @@
 				$contest_link = "http://codeforces.com/contests/". $contest_ID;
 				echo "<td>";
 				echo "<a style='text-decoration:none' href=".$contest_link." target='_blank'>".$contest_title."</a>";
+				/*echo "<br>";
+				echo ($current_year.'-'.$current_day.'-'.$current_month.' '.$current_hour.':'.$current_minute);
 				echo "<br>";
+				echo ($year.'-'.$month.'-'.$day.' '.$hour.':'.$minute);*/
 				echo "</td>";
 				
 				echo "<td>";
